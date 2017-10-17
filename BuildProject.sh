@@ -55,48 +55,48 @@ if [ $1 = "clean" ]
 then
 	echo -e $GREEN"bash $0 $1"$RESET
 	cd $OUTDIR && rm -rf *
-	cd $UBOOT_SRC && make clean
+	cd $UBOOT_SRC && make distclean
 	cd $KERNEL_SRC && make clean
 	cd $BUSYBOX_SRC && make clean
-	exit 0
+	echo ">Done."
 fi
 
 #Target:uboot or all
 if [ $1 = "uboot" -o $1 = "all" ]
 then
 	echo -e $GREEN"bash $0 uboot"$RESET
-	(test -d $UBOOT_SRC && cd $UBOOT_SRC) || (echo -e $RED"[ERROR]Fail to access the $UBOOT_SRC"$RESET;exit 1)
-	test $? = 0 || exit 1
-	make || (echo -e $RED"ERROR Fail to build uboot"$RESET;exit 1)
-	test $? = 0 || exit 1
-	test -d sd_fuse/tiny4412 && cd sd_fuse/tiny4412 || (echo -e $RED"[ERROR]Fail to access the $UBOOT_SRC/sd_fuse/tiny4412"$RESET;exit 1)
-	test $? = 0 || exit 1
-	bash sd_fusing_part1.sh || (echo -e $RED"[ERROR]Fail to create the bootloader image."$RESET;exit 1)
-	test $? = 0 || exit 1
-	cp bootloader.img out
+	test -d $UBOOT_SRC && cd $UBOOT_SRC || { echo -e $RED"[ERROR]Fail to access the $UBOOT_SRC"$RESET;exit 1;}
+	make tiny4412_config && make || { echo -e $RED"[ERROR] Fail to build uboot"$RESET;exit 1;}
+	test -d sd_fuse/tiny4412 && cd sd_fuse/tiny4412 || { echo -e $RED"[ERROR]Fail to access the $UBOOT_SRC/sd_fuse/tiny4412"$RESET;exit 1;}
+	bash sd_fusing_part1.sh || { echo -e $RED"[ERROR]Fail to create the bootloader image."$RESET;exit 1;}
+	cp bootload.bin $OUTDIR
+	cd - && cp System.map $OUTDIR
 	FLAG=1
+	echo ">Done."
 fi
 
 #Target:kernel or all
 if [ $1 = "kernel" -o $1 = "all" ]
 then
 	echo -e $GREEN"bash $0 kernel"$RESET
-	(test -d $KERNEL_SRC && cd $KERNEL_SRC) || (echo -e $RED"[ERROR]Fail to access the $KERNEL_SRC"$RESET ; exit 1)
-	test $? = 0 || exit 1
+	test -d $KERNEL_SRC && cd $KERNEL_SRC || { echo -e $RED"[ERROR]Fail to access the $KERNEL_SRC"$RESET ; exit 1;}
+#	test $? = 0 || exit 1
 #	make || (echo -e $RED"ERROR Fail to build kernel"$RESET;exit 1)
-	test $? = 0 || exit 1
+#	test $? = 0 || exit 1
 	FLAG=1
+	echo ">Done."
 fi
 
 #Target:busybox or all
 if [ $1 = "busybox" -o $1 = "all" ]
 then
 	echo -e $GREEN"bash $0 busybox"$RESET
-	(test -d $BUSYBOX_SRC && cd $BUSYBOX_SRC) || (echo -e $RED"[ERROR]Fail to access the $BUSYBOX_SRC"$RESET;exit 1)
+	test -d $BUSYBOX_SRC && cd $BUSYBOX_SRC || { echo -e $RED"[ERROR]Fail to access the $BUSYBOX_SRC"$RESET;exit 1;}
 	test $? = 0 || exit 1
 #	make || (echo -e $RED"ERROR Fail to build busybox"$RESET;exit 1)
 	test $? = 0 || exit 1
 	FLAG=1
+	echo ">Done."
 fi
 
 #check if the target is invalid
