@@ -1,7 +1,7 @@
 #/bin/bash
 #
 
-TOPDIR=`pwd`
+TOPDIR=`pwd`/../
 OUTDIR="$TOPDIR/out"
 UBOOT_SRC="$TOPDIR/uboot"
 KERNEL_SRC="$TOPDIR/kernel"
